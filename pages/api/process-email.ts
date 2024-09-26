@@ -10,7 +10,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       // In a real application, you would fetch previous conversations from a database
       const previousConversations: string[] = []
 
-      const prompt = createPrompt(content, previousConversations, userStyle)
+      const prompt = createPrompt({
+        subject: content.subject,
+        messages: [...previousConversations, { sender: content.sender, content: content.body }],
+        userStyle
+      })
       const aiResponse = await generateResponse(prompt)
 
       // Here you would typically save the response to your database and send an SMS

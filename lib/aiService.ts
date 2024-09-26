@@ -1,9 +1,16 @@
 // lib/aiService.ts
 import { EmailThread } from './emailService';
 
-export function createPrompt(thread: EmailThread): string {
-  const latestMessage = thread.messages[thread.messages.length - 1];
-  const previousMessages = thread.messages.slice(0, -1).map(msg => 
+interface PromptData {
+  subject: string;
+  messages: Array<{ sender: string; content: string }>;
+  userStyle?: string;
+}
+
+export function createPrompt(data: PromptData): string {
+  const { subject, messages, userStyle } = data;
+  const latestMessage = messages[messages.length - 1];
+  const previousMessages = messages.slice(0, -1).map(msg => 
     `From: ${msg.sender}\nContent: ${msg.content}`
   ).join('\n\n');
 
@@ -11,7 +18,7 @@ export function createPrompt(thread: EmailThread): string {
     You are an AI assistant tasked with drafting an email response. 
     Here's the context:
     
-    1. Email thread subject: "${thread.subject}"
+    1. Email thread subject: "${subject}"
     
     2. Previous messages in the thread:
     ${previousMessages}
@@ -20,7 +27,10 @@ export function createPrompt(thread: EmailThread): string {
     From: ${latestMessage.sender}
     Content: "${latestMessage.content}"
     
+    ${userStyle ? `4. User's preferred writing style: ${userStyle}` : ''}
+    
     Please draft a response that is appropriate and concise, considering the entire conversation history.
+    ${userStyle ? 'Ensure the response matches the user\'s preferred writing style.' : ''}
     Only provide the response text, without any additional explanations or formatting.
   `;
 }

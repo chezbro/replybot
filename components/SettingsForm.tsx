@@ -1,16 +1,40 @@
 'use client';
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 export default function SettingsForm() {
+  const [apiKey, setApiKey] = useState('')
   const [aiModel, setAiModel] = useState('gpt-3.5-turbo')
   const [responseStyle, setResponseStyle] = useState('professional')
   const [maxTokens, setMaxTokens] = useState(150)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Fetch the API key from the server on component mount
+    fetch('/api/settings')
+      .then(response => response.json())
+      .then(data => setApiKey(data.apiKey || ''))
+      .catch(error => console.error('Error fetching API key:', error))
+  }, [])
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement settings submission logic
-    console.log('Settings submitted:', { aiModel, responseStyle, maxTokens })
+    // Implement settings submission logic
+    try {
+      const response = await fetch('/api/settings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ apiKey, aiModel, responseStyle, maxTokens }),
+      })
+      if (response.ok) {
+        console.log('Settings saved successfully')
+      } else {
+        console.error('Failed to save settings')
+      }
+    } catch (error) {
+      console.error('Error saving settings:', error)
+    }
   }
 
   return (

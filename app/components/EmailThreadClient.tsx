@@ -5,7 +5,8 @@ import { EmailThread, fetchEmailThread, generateAIResponse, deleteMessage } from
 import { AnimatePresence, motion } from 'framer-motion';
 import { XCircle } from 'lucide-react'; // Import the X icon
 
-export default function EmailThreadClient({ thread }: { thread: EmailThread }) {
+export default function EmailThreadClient({ thread: initialThread }: { thread: EmailThread }) {
+  const [thread, setThread] = useState<EmailThread>(initialThread);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,13 +28,10 @@ export default function EmailThreadClient({ thread }: { thread: EmailThread }) {
   const handleDeleteMessage = async (messageId: string) => {
     try {
       await deleteMessage(thread.id, messageId);
-      setThread(prevThread => {
-        if (!prevThread) return null;
-        return {
-          ...prevThread,
-          messages: prevThread.messages.filter(msg => msg.id !== messageId)
-        };
-      });
+      setThread((prevThread) => ({
+        ...prevThread,
+        messages: prevThread.messages.filter((msg) => msg.id !== messageId)
+      }));
     } catch (error) {
       console.error('Error deleting message:', error);
       setError('Failed to delete message. Please try again.');

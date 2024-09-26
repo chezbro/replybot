@@ -8,11 +8,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       // In a real application, you would fetch previous conversations from a database
-      const previousConversations: string[] = []
+      // For now, we'll initialize it as an empty array of the correct type
+      const previousConversations: Array<{ sender: string; content: string }> = []
 
       const prompt = createPrompt({
         subject: content.subject,
-        messages: [...previousConversations, { sender: content.sender, content: content.body }],
+        messages: [
+          ...previousConversations,
+          { sender: content.sender, content: content.body }
+        ],
         userStyle
       })
       const aiResponse = await generateResponse(prompt)
